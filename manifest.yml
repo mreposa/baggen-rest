@@ -1,0 +1,8 @@
+---
+applications:
+- name: baggen-rest
+  memory: 256M
+  instances: 1
+  host: rest-service
+  domain: guides.spring.io
+  path: build/libs/baggen-rest-1.0.0.jar

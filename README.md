@@ -1,0 +1,2 @@
+# baggen-rest
+A Java Swing front-end program that connects to a RESTful SpringBoot service to generate the contents of various giant bags following the rules found in the Advanced Dungeons and Dragons module 'G1-2-3 Against the Giants'.
