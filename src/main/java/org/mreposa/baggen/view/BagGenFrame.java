@@ -6,8 +6,10 @@ import org.json.JSONObject;
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.awt.event.*;
@@ -110,52 +112,53 @@ public class BagGenFrame extends JFrame implements ActionListener {
             this.displayAreas.get(t).setText("");
         }
 
-        StringBuilder sb = makeRequest();
-        displayBags(sb);
+        try {
+            StringBuilder sb = makeRequest();
+            displayBags(sb);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Could not connect to service: " + e.getMessage(), "Service Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    private StringBuilder makeRequest() {
+    private StringBuilder makeRequest() throws URISyntaxException, IOException {
         StringBuilder sb = new StringBuilder();
 
-        try {
-            URI uri = new URI("http://localhost:8080/generate-bag?count=" + this.bagCount);
-            URLConnection conn = uri.toURL().openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        URI uri = new URI("http://localhost:8080/generate-bag?count=" + this.bagCount);
+        URLConnection conn = uri.toURL().openConnection();
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
-            String inputLine;
-            while ((inputLine = in.readLine()) != null)
-                sb.append(inputLine);
+        String inputLine;
+        while ((inputLine = in.readLine()) != null)
+            sb.append(inputLine);
 
-            in.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        in.close();
 
         return sb;
     }
 
     private void displayBags(StringBuilder sb) {
-        JSONObject obj = new JSONObject(sb.toString());
-        JSONArray bags = obj.getJSONArray("bags");
-        for (int b = 0; b < bags.length(); b++) {
-            JSONObject bag = bags.getJSONObject(b);
-            String bagContents = bag.getString("contents");
-            String[] contentsArray = bagContents.split(",");
+        if (sb != null) {
+            JSONObject obj = new JSONObject(sb.toString());
+            JSONArray bags = obj.getJSONArray("bags");
+            for (int b = 0; b < bags.length(); b++) {
+                JSONObject bag = bags.getJSONObject(b);
+                String bagContents = bag.getString("contents");
+                String[] contentsArray = bagContents.split(",");
 
-            StringBuilder output = new StringBuilder();
-            output.append("Bag #");
-            output.append(bag.getInt("bagId"));
-            output.append(" contains ");
-            output.append(contentsArray.length);
-            output.append(" items:\n\n");
-            for (String giantBagItem : contentsArray) {
-                output.append("     ");
-                output.append(giantBagItem);
-                output.append("\n");
+                StringBuilder output = new StringBuilder();
+                output.append("Bag #");
+                output.append(bag.getInt("bagId"));
+                output.append(" contains ");
+                output.append(contentsArray.length);
+                output.append(" items:\n\n");
+                for (String giantBagItem : contentsArray) {
+                    output.append("     ");
+                    output.append(giantBagItem);
+                    output.append("\n");
+                }
+
+                this.displayAreas.get(b).setText(output.toString());
             }
-
-            this.displayAreas.get(b).setText(output.toString());
         }
     }
 

@@ -14,7 +14,14 @@ public class GiantBagController {
 	@GetMapping("/generate-bag")
 	public GiantBagList generateBag(@RequestParam(value = "count", defaultValue = "1") String count) {
 		GiantBagGenerator gen = new GiantBagGenerator();
-		int bagCount = Integer.parseInt(count);
+		int bagCount = 1;
+		try {
+			bagCount = Integer.parseInt(count);
+		}
+		catch (NumberFormatException e) {
+			bagCount = 1;
+		}
+
 		ArrayList<GiantBag> bags = new ArrayList<>();
 
 		for (int i = 0; i < bagCount; i++) {
